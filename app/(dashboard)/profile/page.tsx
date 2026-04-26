@@ -18,6 +18,8 @@ import {
   Key,
   Trash2,
   CheckCircle2,
+  Brain,
+  TreePine,
 } from 'lucide-react';
 
 interface User {

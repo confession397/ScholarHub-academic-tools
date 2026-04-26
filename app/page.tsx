@@ -25,7 +25,6 @@ import {
   Coffee,
   Library,
   Timer,
-  Mind,
 } from 'lucide-react';
 
 const features = [

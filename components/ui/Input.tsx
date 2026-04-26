@@ -24,8 +24,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             'transition-all duration-200',
             'focus:border-primary-400 focus:ring-4 focus:ring-primary-100/50',
             'disabled:bg-gray-50 disabled:cursor-not-allowed',
-            icon && 'pl-12',
-            error && 'border-red-400 focus:border-red-400 focus:ring-red-100/50',
+            !!icon && 'pl-12',
+            !!error && 'border-red-400 focus:border-red-400 focus:ring-red-100/50',
             className
           )}
           {...props}
