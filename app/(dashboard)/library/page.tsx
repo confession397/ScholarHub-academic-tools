@@ -112,6 +112,11 @@ export default function LibraryPage() {
     }
   };
 
+  const parseTags = (tags: string) => {
+    if (!tags) return [];
+    return tags.split(',').map(t => t.trim()).filter(Boolean);
+  };
+
   const allTags = Array.from(new Set(items.flatMap(item => parseTags(item.tags))));
 
   const filteredItems = items.filter(item => {
@@ -126,11 +131,6 @@ export default function LibraryPage() {
 
     return matchesSearch && matchesTag;
   });
-
-  const parseTags = (tags: string) => {
-    if (!tags) return [];
-    return tags.split(',').map(t => t.trim()).filter(Boolean);
-  };
 
   return (
     <div className="space-y-6 animate-fadeIn">
