@@ -6,6 +6,50 @@ ScholarHub 是一个为学术研究者和学生打造的全功能工具集，提
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![Version](https://img.shields.io/badge/Version-v1.1.0-purple)
+
+---
+
+## 📝 更新日志
+
+### v1.1.0 (2026-04-26) - UI优化版本 ✨
+
+**主要更新：**
+- 🎨 **全新学术风格界面设计**
+  - 扩展色彩系统，支持12级渐变色板
+  - 6级阴影层次系统
+  - 统一圆角设计语言
+  - 精选学术字体组合
+
+- ✨ **交互动效优化**
+  - 淡入/上浮动画效果
+  - 悬停卡片上浮 + 阴影增强
+  - 环形进度指示器
+  - 渐变背景装饰
+
+- 🖼️ **组件升级**
+  - Button 渐变背景 + 悬停上浮
+  - Input 焦点 ring 效果
+  - Card 边框阴影过渡
+  - Tag 彩色圆角标签
+
+- 📱 **页面全面优化**
+  - 首页：渐变背景装饰、浮动元素
+  - 登录/注册：毛玻璃背景、表单焦点效果
+  - 仪表盘：渐变统计卡片
+  - 任务清单：状态切换动画
+  - 头脑风暴：树形可视化
+  - 时间追踪：环形计时器
+  - 专注森林：虚拟森林可视化
+  - 收藏库：网格/列表切换
+  - 个人资料：渐变头部设计
+
+### v1.0.0 (2026-04-26) - 初始版本
+- 项目初始化
+- 六大核心功能开发
+- 用户认证系统
+
+---
 
 ## 功能特性
 
@@ -66,8 +110,8 @@ ScholarHub 是一个为学术研究者和学生打造的全功能工具集，提
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/scholarhub.git
-cd scholarhub
+git clone https://github.com/confession397/ScholarHub-academic-tools.git
+cd ScholarHub-academic-tools
 
 # 安装依赖
 npm install
@@ -106,6 +150,8 @@ scholarhub/
 │   ├── auth.ts              # 认证逻辑
 │   ├── db/                   # 数据库
 │   └── utils.ts             # 工具函数
+├── components/
+│   └── ui/                   # UI组件库
 └── public/                  # 静态资源
 ```
 
@@ -128,14 +174,15 @@ scholarhub/
 ScholarHub 采用学术风格的 UI 设计：
 
 - **配色方案**: 深蓝色主色调，搭配森林绿和金色点缀
-- **字体**: Playfair Display（标题）+ Source Sans Pro（正文）
+- **字体**: Playfair Display（标题）+ Source Sans Pro（正文）+ Noto Serif SC（中文）
 - **布局**: 简洁的侧边栏导航 + 主内容区
+- **动效**: 渐入动画、悬停反馈、平滑过渡
 
 ## 部署
 
 ### Vercel（推荐）
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/scholarhub)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/confession397/ScholarHub-academic-tools)
 
 ### Netlify
 
