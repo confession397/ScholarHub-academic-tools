@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Plus,
   ChevronRight,
@@ -11,7 +11,9 @@ import {
   X,
   Download,
   Search,
-  Mind,
+  Sparkles,
+  ArrowRight,
+  Lightbulb,
 } from 'lucide-react';
 
 interface Note {
@@ -50,6 +52,7 @@ interface NoteNodeProps {
   onDelete: (id: string) => void;
   expandedIds: Set<string>;
   toggleExpand: (id: string) => void;
+  maxDepth: number;
 }
 
 function NoteNode({
@@ -60,6 +63,7 @@ function NoteNode({
   onDelete,
   expandedIds,
   toggleExpand,
+  maxDepth,
 }: NoteNodeProps) {
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(note.content);
@@ -78,17 +82,24 @@ function NoteNode({
     setEditing(false);
   };
 
+  const indent = depth * 28;
+
   return (
     <div className="animate-fadeIn">
       <div
-        className="flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-gray-50 group transition-colors"
-        style={{ paddingLeft: `${depth * 24 + 12}px` }}
+        className="group flex items-center gap-2 py-2.5 px-4 rounded-xl hover:bg-gray-50/80 transition-all duration-150 cursor-pointer"
+        style={{ marginLeft: `${indent}px` }}
       >
-        {/* Expand/Collapse Button */}
+        {/* Expand/Collapse */}
         <button
-          onClick={() => toggleExpand(note.id)}
-          className={`w-5 h-5 flex items-center justify-center rounded transition-colors ${
-            hasChildren ? 'text-gray-400 hover:text-gray-600' : 'invisible'
+          onClick={(e) => {
+            e.stopPropagation();
+            if (hasChildren) toggleExpand(note.id);
+          }}
+          className={`w-6 h-6 flex items-center justify-center rounded-lg transition-all ${
+            hasChildren
+              ? 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+              : 'invisible'
           }`}
         >
           {isExpanded ? (
@@ -99,7 +110,13 @@ function NoteNode({
         </button>
 
         {/* Bullet */}
-        <div className="w-2 h-2 rounded-full bg-primary/40 flex-shrink-0" />
+        <div
+          className="w-3 h-3 rounded-full flex-shrink-0 transition-all"
+          style={{
+            backgroundColor: depth === 0 ? 'var(--primary-500)' : `hsl(220, 60%, ${70 - depth * 10}%)`,
+            transform: isExpanded ? 'scale(1.1)' : 'scale(1)',
+          }}
+        />
 
         {/* Content */}
         {editing ? (
@@ -108,22 +125,29 @@ function NoteNode({
               type="text"
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="flex-1 px-3 py-1 border border-primary/30 rounded-lg outline-none focus:border-primary text-sm"
+              className="flex-1 px-4 py-2 border-2 border-primary-300 rounded-xl outline-none focus:border-primary text-sm bg-white"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSave();
                 if (e.key === 'Escape') handleCancel();
               }}
+              onClick={(e) => e.stopPropagation()}
             />
             <button
-              onClick={handleSave}
-              className="p-1 text-green-600 hover:bg-green-50 rounded"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSave();
+              }}
+              className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
             >
               <Check className="w-4 h-4" />
             </button>
             <button
-              onClick={handleCancel}
-              className="p-1 text-gray-400 hover:bg-gray-100 rounded"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCancel();
+              }}
+              className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -131,33 +155,44 @@ function NoteNode({
         ) : (
           <>
             <span
-              className="flex-1 text-gray-700 cursor-pointer"
+              className="flex-1 text-gray-700 text-base"
               onClick={() => {
                 if (hasChildren) toggleExpand(note.id);
               }}
             >
               {note.content}
             </span>
+
+            {/* Actions */}
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {depth < maxDepth && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAdd(note.id);
+                  }}
+                  className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+                  title="添加子节点"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              )}
               <button
-                onClick={() => onAdd(note.id)}
-                className="p-1 text-gray-400 hover:text-primary hover:bg-primary/10 rounded"
-                title="添加子节点"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   setEditing(true);
                 }}
-                className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 title="编辑"
               >
                 <Edit3 className="w-4 h-4" />
               </button>
               <button
-                onClick={() => onDelete(note.id)}
-                className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(note.id);
+                }}
+                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 title="删除"
               >
                 <Trash2 className="w-4 h-4" />
@@ -169,7 +204,7 @@ function NoteNode({
 
       {/* Children */}
       {hasChildren && isExpanded && (
-        <div className="border-l border-primary/10 ml-5">
+        <div className="border-l-2 border-gray-100" style={{ marginLeft: `${indent + 18}px` }}>
           {note.children!.map(child => (
             <NoteNode
               key={child.id}
@@ -180,6 +215,7 @@ function NoteNode({
               onDelete={onDelete}
               expandedIds={expandedIds}
               toggleExpand={toggleExpand}
+              maxDepth={maxDepth}
             />
           ))}
         </div>
@@ -195,6 +231,7 @@ export default function BrainstormPage() {
   const [newNoteContent, setNewNoteContent] = useState('');
   const [addingTo, setAddingTo] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [maxDepth] = useState(8);
 
   useEffect(() => {
     loadNotes();
@@ -206,8 +243,7 @@ export default function BrainstormPage() {
       const res = await fetch('/api/notes');
       const data = await res.json();
       setNotes(data.notes || []);
-      // 自动展开所有节点
-      const allIds = new Set((data.notes || []).map((n: Note) => n.id));
+      const allIds = new Set<string>((data.notes || []).map((n: Note) => n.id));
       setExpandedIds(allIds);
     } catch (error) {
       console.error('Failed to load notes:', error);
@@ -304,7 +340,6 @@ export default function BrainstormPage() {
 
   const tree = buildTree(notes);
 
-  // 过滤搜索结果
   const filterNotes = (noteList: Note[], query: string): Note[] => {
     if (!query) return noteList;
     return noteList.filter(note => {
@@ -326,34 +361,35 @@ export default function BrainstormPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-serif font-bold text-gray-900">头脑风暴</h1>
-          <p className="text-gray-600 mt-1">用大纲式笔记整理你的思维，支持无限层级缩进</p>
+          <p className="text-gray-500 mt-1 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-accent-500" />
+            用无限层级的大纲整理复杂思路，支持导出 Markdown
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            导出 Markdown
-          </button>
-        </div>
+        <button
+          onClick={handleExport}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+        >
+          <Download className="w-4 h-4" />
+          导出 Markdown
+        </button>
       </div>
 
       {/* Search & Add */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索笔记..."
-            className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-100/50 focus:border-primary-400 outline-none transition-all"
           />
         </div>
         <button
           onClick={() => handleAddNote(null)}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-600 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-md hover:shadow-lg"
         >
           <Plus className="w-5 h-5" />
           添加主题
@@ -362,17 +398,17 @@ export default function BrainstormPage() {
 
       {/* Add New Note Input */}
       {addingTo !== null && (
-        <div className="bg-white rounded-xl border border-primary/30 p-4 animate-fadeIn">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-              <Mind className="w-4 h-4 text-primary" />
+        <div className="bg-white rounded-2xl border-2 border-primary-200/50 p-5 animate-scaleIn shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center">
+              <Lightbulb className="w-5 h-5 text-primary" />
             </div>
             <input
               type="text"
               value={newNoteContent}
               onChange={(e) => setNewNoteContent(e.target.value)}
               placeholder="输入内容... (按 Enter 确认, Esc 取消)"
-              className="flex-1 px-4 py-2 border border-gray-200 rounded-lg outline-none focus:border-primary"
+              className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:border-primary outline-none text-sm"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSubmitNew(addingTo);
@@ -382,24 +418,55 @@ export default function BrainstormPage() {
                 }
               }}
             />
+            <button
+              onClick={() => handleSubmitNew(addingTo)}
+              className="px-4 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary-600 transition-colors"
+            >
+              确认
+            </button>
+            <button
+              onClick={() => {
+                setAddingTo(null);
+                setNewNoteContent('');
+              }}
+              className="px-4 py-2 bg-gray-100 text-gray-600 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              取消
+            </button>
           </div>
         </div>
       )}
 
       {/* Notes Tree */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 min-h-[400px]">
+      <div className="bg-white rounded-2xl border border-gray-100/80 shadow-sm min-h-[500px]">
         {loading ? (
-          <div className="text-center py-12 text-gray-500">加载中...</div>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-12 h-12 border-4 border-primary-200 border-t-primary rounded-full animate-spin mb-4" />
+            <p className="text-gray-500">加载中...</p>
+          </div>
         ) : filteredTree.length === 0 ? (
-          <div className="text-center py-12">
-            <Mind className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">暂无笔记</p>
-            <p className="text-sm text-gray-400 mt-1">
-              点击右上角按钮添加你的第一个主题
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <Lightbulb className="w-10 h-10 text-gray-300" />
+            </div>
+            <p className="text-lg font-medium text-gray-700 mb-2">
+              {searchQuery ? '没有找到匹配的笔记' : '暂无笔记'}
             </p>
+            <p className="text-sm text-gray-400 mb-4">
+              {searchQuery ? '尝试其他关键词' : '点击右上角按钮添加你的第一个主题'}
+            </p>
+            {!searchQuery && (
+              <button
+                onClick={() => handleAddNote(null)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-600 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                添加主题
+              </button>
+            )}
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="p-6 space-y-1">
             {filteredTree.map(note => (
               <NoteNode
                 key={note.id}
@@ -410,6 +477,7 @@ export default function BrainstormPage() {
                 onDelete={handleDelete}
                 expandedIds={expandedIds}
                 toggleExpand={toggleExpand}
+                maxDepth={maxDepth}
               />
             ))}
           </div>
@@ -417,12 +485,28 @@ export default function BrainstormPage() {
       </div>
 
       {/* Tips */}
-      <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
-        <h3 className="font-medium text-gray-900 mb-2">使用技巧</h3>
-        <ul className="text-sm text-gray-600 space-y-1">
-          <li>• 点击节点前的箭头可展开/折叠子节点</li>
-          <li>• 使用工具按钮添加子节点、编辑或删除</li>
-          <li>• 支持导出为 Markdown 格式，方便在其他工具中使用</li>
+      <div className="bg-gradient-to-r from-primary-50 to-primary-50/50 rounded-2xl p-5 border border-primary-100/50">
+        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-accent-500" />
+          使用技巧
+        </h3>
+        <ul className="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
+          <li className="flex items-center gap-2">
+            <ArrowRight className="w-4 h-4 text-primary" />
+            点击节点前的箭头可展开/折叠子节点
+          </li>
+          <li className="flex items-center gap-2">
+            <ArrowRight className="w-4 h-4 text-primary" />
+            使用工具按钮添加子节点、编辑或删除
+          </li>
+          <li className="flex items-center gap-2">
+            <ArrowRight className="w-4 h-4 text-primary" />
+            支持导出为 Markdown 格式
+          </li>
+          <li className="flex items-center gap-2">
+            <ArrowRight className="w-4 h-4 text-primary" />
+            最多支持 {maxDepth} 层嵌套
+          </li>
         </ul>
       </div>
     </div>
