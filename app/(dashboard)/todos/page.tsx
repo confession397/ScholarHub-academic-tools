@@ -6,11 +6,8 @@ import {
   Calendar,
   Clock,
   Target,
-  CheckCircle2,
-  Circle,
   Trash2,
   Edit3,
-  MoreHorizontal,
   Sparkles,
   ArrowUp,
   ArrowDown,
@@ -18,6 +15,8 @@ import {
   Check,
   X,
   Search,
+  ListTodo,
+  Filter,
 } from 'lucide-react';
 
 interface Todo {
@@ -31,9 +30,9 @@ interface Todo {
 }
 
 const tabs = [
-  { id: 'today', label: '今天必须做', icon: Calendar, color: 'text-blue-500', bgActive: 'bg-blue-50' },
-  { id: 'week', label: '这周必须做', icon: Clock, color: 'text-violet-500', bgActive: 'bg-violet-50' },
-  { id: 'longterm', label: '长期目标', icon: Target, color: 'text-amber-500', bgActive: 'bg-amber-50' },
+  { id: 'today', label: '今天必须做', icon: Calendar, color: 'from-blue-500 to-blue-600', bgActive: 'bg-blue-50', textActive: 'text-blue-600' },
+  { id: 'week', label: '这周必须做', icon: Clock, color: 'from-violet-500 to-violet-600', bgActive: 'bg-violet-50', textActive: 'text-violet-600' },
+  { id: 'longterm', label: '长期目标', icon: Target, color: 'from-amber-500 to-amber-600', bgActive: 'bg-amber-50', textActive: 'text-amber-600' },
 ];
 
 const priorityConfig = {
@@ -41,6 +40,8 @@ const priorityConfig = {
   medium: { label: '中', color: 'text-amber-500', bg: 'bg-amber-50 border-amber-200', icon: Minus },
   low: { label: '低', color: 'text-emerald-500', bg: 'bg-emerald-50 border-emerald-200', icon: ArrowDown },
 };
+
+const emptyEmojis = ['📋', '✨', '🎯', '💪'];
 
 export default function TodosPage() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -170,58 +171,73 @@ export default function TodosPage() {
   };
 
   const currentTab = tabs.find(t => t.id === activeTab)!;
+  const [emptyEmoji] = useState(() => emptyEmojis[Math.floor(Math.random() * emptyEmojis.length)]);
 
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-serif font-bold text-gray-900">任务清单</h1>
-          <p className="text-gray-500 mt-1 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-accent-500" />
-            用自然语言添加任务，智能识别时间和优先级
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-primary-100 to-primary-50 rounded-xl flex items-center justify-center shadow-sm">
+            <ListTodo className="w-6 h-6 text-primary-600" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-serif font-bold text-gray-900 flex items-center gap-2">
+              任务清单
+              <span className="text-2xl">📋</span>
+            </h1>
+            <p className="text-gray-500 mt-0.5 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-accent-500" />
+              用自然语言添加任务，智能识别时间和优先级
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
-          { label: '今日', value: stats.today, color: 'from-blue-500 to-blue-600' },
-          { label: '本周', value: stats.week, color: 'from-violet-500 to-violet-600' },
-          { label: '长期', value: stats.longterm, color: 'from-amber-500 to-amber-600' },
-          { label: '待办', value: stats.pending, color: 'from-gray-500 to-gray-600' },
-          { label: '已完成', value: stats.completed, color: 'from-emerald-500 to-emerald-600' },
+          { label: '今日', value: stats.today, color: 'from-blue-500 to-blue-600', emoji: '📅' },
+          { label: '本周', value: stats.week, color: 'from-violet-500 to-violet-600', emoji: '📆' },
+          { label: '长期', value: stats.longterm, color: 'from-amber-500 to-amber-600', emoji: '🎯' },
+          { label: '待办', value: stats.pending, color: 'from-gray-500 to-gray-600', emoji: '⏳' },
+          { label: '已完成', value: stats.completed, color: 'from-emerald-500 to-emerald-600', emoji: '✅' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white rounded-xl border border-gray-100/80 p-4 hover:shadow-md transition-all">
-            <div className={`text-2xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
-              {stat.value}
+          <div key={stat.label} className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all hover:-translate-y-0.5">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">{stat.emoji}</span>
+              <span className={`text-2xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                {stat.value}
+              </span>
             </div>
-            <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
+            <div className="text-sm text-gray-500">{stat.label}</div>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 bg-white p-1.5 rounded-2xl border border-gray-100/80 w-fit shadow-sm">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-              activeTab === tab.id
-                ? `bg-gradient-to-r ${tab.bgActive} ${tab.color} shadow-sm`
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-2 bg-white p-1.5 rounded-2xl border border-gray-100 w-fit shadow-sm">
+        {tabs.map(tab => {
+          const TabIcon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
+                activeTab === tab.id
+                  ? `bg-gradient-to-r ${tab.bgActive} ${tab.textActive} shadow-sm`
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <TabIcon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Add Todo Form */}
-      <form onSubmit={handleAddTodo} className="bg-white rounded-2xl border border-gray-100/80 p-5 shadow-sm">
+      <form onSubmit={handleAddTodo} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -242,19 +258,34 @@ export default function TodosPage() {
             添加任务
           </button>
         </div>
-        <p className="text-xs text-gray-400 mt-3 flex items-center gap-4">
-          <span>提示: 输入&quot;高/中/低&quot;设置优先级</span>
+        <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-red-400" /> 高优先级
+          </span>
           <span>•</span>
-          <span>输入&quot;今天/这周/长期&quot;设置时间</span>
-        </p>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-amber-400" /> 中优先级
+          </span>
+          <span>•</span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" /> 低优先级
+          </span>
+        </div>
       </form>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-medium text-gray-600">筛选:</span>
+      <div className="flex flex-wrap items-center gap-3 bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Filter className="w-4 h-4" />
+          <span className="font-medium">筛选:</span>
+        </div>
         <button
           onClick={() => setFilterPriority(null)}
-          className={`px-3 py-1.5 text-sm rounded-lg transition-all ${!filterPriority ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+          className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+            !filterPriority 
+              ? 'bg-gray-900 text-white shadow-sm' 
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
         >
           全部
         </button>
@@ -262,7 +293,11 @@ export default function TodosPage() {
           <button
             key={key}
             onClick={() => setFilterPriority(filterPriority === key ? null : key)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-all ${filterPriority === key ? config.bg + ' ' + config.color : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+              filterPriority === key 
+                ? `${config.bg} ${config.color} shadow-sm` 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
           >
             {config.label}优先级
           </button>
@@ -282,17 +317,32 @@ export default function TodosPage() {
       {/* Todo List */}
       <div className="space-y-3">
         {loading ? (
-          <div className="text-center py-16">
-            <div className="w-12 h-12 border-4 border-primary-200 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-500">加载中...</p>
+          <div className="bg-white rounded-2xl border border-gray-100 p-12">
+            <div className="flex flex-col items-center justify-center">
+              <div className="w-12 h-12 border-4 border-primary-200 border-t-primary rounded-full animate-spin mb-4" />
+              <p className="text-gray-500">加载中...</p>
+            </div>
           </div>
         ) : filteredTodos.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Target className="w-10 h-10 text-gray-300" />
+          <div className="bg-white rounded-2xl border border-gray-100 p-12">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-50 rounded-3xl flex items-center justify-center mb-6 shadow-sm">
+                <span className="text-5xl">{emptyEmoji}</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">暂无任务</h3>
+              <p className="text-gray-500 mb-6 max-w-sm">
+                {activeTab === 'today' 
+                  ? '今天没有待办任务，太棒了！🎉' 
+                  : '添加你的第一个任务，开启高效之旅'}
+              </p>
+              <button
+                onClick={() => document.querySelector('input')?.focus()}
+                className="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                添加任务
+              </button>
             </div>
-            <p className="text-lg font-medium text-gray-700 mb-2">暂无任务</p>
-            <p className="text-sm text-gray-400">添加你的第一个任务吧</p>
           </div>
         ) : (
           filteredTodos.map((todo, index) => {
@@ -302,7 +352,7 @@ export default function TodosPage() {
             return (
               <div
                 key={todo.id}
-                className={`group bg-white rounded-2xl border border-gray-100/80 p-5 transition-all duration-200 hover:shadow-md hover:border-gray-200/50 animate-fadeIn ${
+                className={`group bg-white rounded-2xl border border-gray-100 p-5 transition-all duration-200 hover:shadow-md hover:border-gray-200/50 animate-fadeIn ${
                   todo.status === 'completed' ? 'opacity-60' : ''
                 }`}
                 style={{ animationDelay: `${index * 50}ms` }}
@@ -314,13 +364,15 @@ export default function TodosPage() {
                     className="mt-1 flex-shrink-0 transition-transform hover:scale-110"
                   >
                     {todo.status === 'completed' ? (
-                      <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
+                      <div className="w-7 h-7 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full flex items-center justify-center shadow-sm">
                         <Check className="w-4 h-4 text-white" />
                       </div>
                     ) : todo.status === 'in_progress' ? (
-                      <div className="w-6 h-6 rounded-full border-2 border-blue-500 bg-blue-50" />
+                      <div className="w-7 h-7 rounded-full border-2 border-blue-500 bg-blue-50 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                      </div>
                     ) : (
-                      <div className="w-6 h-6 rounded-full border-2 border-gray-300 hover:border-primary transition-colors" />
+                      <div className="w-7 h-7 rounded-full border-2 border-gray-300 hover:border-primary transition-colors" />
                     )}
                   </button>
 
@@ -332,7 +384,7 @@ export default function TodosPage() {
                           type="text"
                           value={editContent}
                           onChange={(e) => setEditContent(e.target.value)}
-                          className="flex-1 px-3 py-1.5 border-2 border-primary-300 rounded-lg outline-none focus:border-primary text-sm"
+                          className="flex-1 px-3 py-1.5 border-2 border-primary-300 rounded-lg outline-none focus:border-primary text-sm bg-white"
                           autoFocus
                           onKeyDown={e => {
                             if (e.key === 'Enter') handleEdit(todo);
@@ -341,28 +393,28 @@ export default function TodosPage() {
                         />
                         <button
                           onClick={() => handleEdit(todo)}
-                          className="p-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600"
+                          className="p-2 bg-gradient-to-br from-emerald-400 to-emerald-500 text-white rounded-lg hover:shadow-md transition-all"
                         >
                           <Check className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setEditingId(null)}
-                          className="p-1.5 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300"
+                          className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-all"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
-                      <p className={`text-gray-900 text-base ${todo.status === 'completed' ? 'line-through text-gray-400' : ''}`}>
+                      <p className={`text-gray-900 text-base leading-relaxed ${todo.status === 'completed' ? 'line-through text-gray-400' : ''}`}>
                         {todo.content}
                       </p>
                     )}
 
                     {/* Meta */}
-                    <div className="flex items-center gap-3 mt-3">
+                    <div className="flex items-center gap-3 mt-3 flex-wrap">
                       <button
                         onClick={() => handlePriorityChange(todo, todo.priority === 'high' ? 'medium' : todo.priority === 'medium' ? 'low' : 'high')}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${priority.bg} ${priority.color} hover:opacity-80`}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all hover:shadow-sm ${priority.bg} ${priority.color}`}
                       >
                         <PriorityIcon className="w-3 h-3" />
                         {priority.label}优先级
