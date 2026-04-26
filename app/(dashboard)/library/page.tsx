@@ -112,7 +112,7 @@ export default function LibraryPage() {
     }
   };
 
-  const allTags = [...new Set(items.flatMap(item => parseTags(item.tags)))];
+  const allTags = Array.from(new Set(items.flatMap(item => parseTags(item.tags))));
 
   const filteredItems = items.filter(item => {
     const query = searchQuery.toLowerCase();
