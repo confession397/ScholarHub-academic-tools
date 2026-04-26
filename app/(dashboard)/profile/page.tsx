@@ -13,9 +13,11 @@ import {
   Calendar,
   AlertCircle,
   Check,
+  CheckCircle,
   Shield,
   Key,
   Trash2,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface User {
